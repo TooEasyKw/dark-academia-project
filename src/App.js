@@ -1,25 +1,46 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import BookCollection from "./pages/BookCollection";
+import Search from "./pages/Search";
+import Modify from "./pages/Modify";
+import NotFoundPage from "./pages/NotFoundPage";
+import { getToken } from "./api/storage";
+import UserContext from "./context/UserContext";
 
-function App() {
+const App = () => {
+  const [user, setUser] = useState(false);
+
+  useEffect(() => {
+    if (getToken()) setUser(true);
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <UserContext.Provider value={[user, setUser]}>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        {!user && (
+          <>
+            <Route path="/login" Component={Login} />
+            <Route path="/register" Component={Register} />
+          </>
+        )}
+        {user && (
+          <>
+            <Route path="/book-collection" element={<BookCollection />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/modify" element={<Modify />} />
+          </>
+        )}
+
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </UserContext.Provider>
   );
-}
+};
 
 export default App;
